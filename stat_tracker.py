@@ -1,1 +1,1 @@
-#set up
+print(initial file)
