@@ -1,2 +1,2 @@
 # stat-tracker
-In depth NBA player statistics tracker using data from NBA.com
+In depth NBA player statistics tracker using data from basketball-reference.com
