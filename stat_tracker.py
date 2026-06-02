@@ -52,10 +52,9 @@ def NBA():
 
     game_log = soup4.find('table', {'id': 'player_game_log_reg'})
 
-    #scrape the specific rows
+    #scrape the game log to find wanted opponent
     rows = game_log.find("tbody").find_all("tr")
-    game_number = input("Enter the game number (e.g., '1' for the first game of the season): ")
-    row = rows[int(game_number) - 1]
+    wanted_team = input("Enter the opponent team (e.g., celtics, knicks, lakers): ").lower()
 
     #find the specific statistic
     stat_map = {
@@ -79,13 +78,87 @@ def NBA():
         "game_score": "game_score"
     }
 
-    wanted_stat = input("Enter the statistic you want to retrieve (e.g., 'points', 'fg%', 'minutes'): ").lower()
-    if wanted_stat in stat_map:
-        stat_data = row.find('td', {'data-stat': stat_map[wanted_stat]})
-        print(f"{player_name}'s Game {game_number} {wanted_stat}: {stat_data.get_text(strip=True)}")
-    else:
+    wanted_stat = input("Enter the statistic you want to retrieve (e.g., 'points', '3pm', 'rebounds'): ").lower()
+    if wanted_stat not in stat_map:
         print("Statistic not found.")
+        return
     
+    stat_column = stat_map[wanted_stat]
 
+    team_map = {
+        "hawks": "ATL",
+        "celtics": "BOS",
+        "nets": "BRK",
+        "hornets": "CHO",
+        "bulls": "CHI",
+        "cavaliers": "CLE",
+        "mavericks": "DAL",
+        "nuggets": "DEN",
+        "pistons": "DET",
+        "warriors": "GSW",
+        "rockets": "HOU",
+        "pacers": "IND",
+        "clippers": "LAC",
+        "lakers": "LAL",
+        "grizzlies": "MEM",
+        "heat": "MIA",
+        "bucks": "MIL",
+        "timberwolves": "MIN",
+        "pelicans": "NOP",
+        "knicks": "NYK",
+        "thunder": "OKC",
+        "magic": "ORL",
+        "76ers": "PHI",
+        "sixers": "PHI",
+        "suns": "PHO",
+        "trail blazers": "POR",
+        "blazers": "POR",
+        "kings": "SAC",
+        "spurs": "SAS",
+        "raptors": "TOR",
+        "jazz": "UTA",
+        "wizards": "WAS"
+    }
+
+    if wanted_team not in team_map:
+        print("Team not found.")
+        return
+    else:    
+        team = team_map[wanted_team]
+
+    total = 0
+    total_seconds = 0
+    games = 0
+
+    for row in rows:
+        opponent = row.find('td', {'data-stat': 'opp_name_abbr'})
+        stat = row.find('td', {'data-stat': stat_column})
+        if opponent and opponent.get_text(strip=True).upper() == team:
+            
+            if stat and stat.get_text(strip=True) != '':
+
+                if wanted_stat == 'minutes':
+                    minutes_str = stat.get_text(strip=True)
+                    minutes, seconds = minutes_str.split(':')
+                    total_seconds += int(minutes) * 60 + int(seconds)
+                else:
+                    total += float(stat.get_text(strip=True))
+
+            games += 1
+
+    if games > 0:
+
+        if wanted_stat == 'minutes':
+            average_seconds = total_seconds / games
+            average_minutes = average_seconds // 60
+            average_seconds = average_seconds % 60
+            print(f"{player_name} averaged {int(average_minutes)}:{int(average_seconds):02d} {wanted_stat} against the {wanted_team.capitalize()} in the {season} season.")
+        else:
+            average = total / games
+            print(f"{player_name} averaged {average:.2f} {wanted_stat} against the {wanted_team.capitalize()} in the {season} season.")
+    else:
+        print(f"{player_name} did not play against the {wanted_team.capitalize()} in the {season} season.")
+            
+    
 if __name__ == "__main__":
     NBA()
