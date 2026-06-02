@@ -127,6 +127,7 @@ def NBA():
         team = team_map[wanted_team]
 
     total = 0
+    total_seconds = 0
     games = 0
 
     for row in rows:
@@ -135,12 +136,26 @@ def NBA():
         if opponent and opponent.get_text(strip=True).upper() == team:
             
             if stat and stat.get_text(strip=True) != '':
-                total += float(stat.get_text(strip=True))
-                games += 1
+
+                if wanted_stat == 'minutes':
+                    minutes_str = stat.get_text(strip=True)
+                    minutes, seconds = minutes_str.split(':')
+                    total_seconds += int(minutes) * 60 + int(seconds)
+                else:
+                    total += float(stat.get_text(strip=True))
+
+            games += 1
 
     if games > 0:
-        average = total / games
-        print(f"{player_name} averaged {average:.2f} {wanted_stat} against the {wanted_team.capitalize()} in the {season} season.")
+
+        if wanted_stat == 'minutes':
+            average_seconds = total_seconds / games
+            average_minutes = average_seconds // 60
+            average_seconds = average_seconds % 60
+            print(f"{player_name} averaged {int(average_minutes)}:{int(average_seconds):02d} {wanted_stat} against the {wanted_team.capitalize()} in the {season} season.")
+        else:
+            average = total / games
+            print(f"{player_name} averaged {average:.2f} {wanted_stat} against the {wanted_team.capitalize()} in the {season} season.")
     else:
         print(f"{player_name} did not play against the {wanted_team.capitalize()} in the {season} season.")
             
