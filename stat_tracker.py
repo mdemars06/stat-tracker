@@ -38,6 +38,20 @@ def NBA():
     response3 = requests.get(player_url)
     soup3 = BeautifulSoup(response3.text, 'html.parser')
 
+    #find the wanted season of statistic
+    season = input("Enter season ending year (e.g., '2026'): ")
+
+    #find specific game log for the season
+    game_log_url = urljoin(player_url, f"gamelog/{season}")
+
+    response4 = requests.get(game_log_url)
+    soup4 = BeautifulSoup(response4.text, 'html.parser')
+
+    game_log = soup4.find('table', {'id': 'player_game_log_reg'})
+
+    #scrape the specific rows
+    ...
+
     #find the wanted statistic
     stat_map = {
     "points": "pts_per_g",
@@ -54,6 +68,7 @@ def NBA():
         print(f"{player_name}'s {wanted_stat}: {stat_data.get_text(strip=True)}")
     else:
         print("Statistic not found.")
+    
 
 if __name__ == "__main__":
     NBA()
